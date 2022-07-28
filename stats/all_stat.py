@@ -40,13 +40,18 @@ skuskove_all = skuskove_s1 + skuskove_s2 + skuskove_s3 + skuskove_s4
 # dokopy: H_0 vs. H_1
 print(stats.ttest_ind(skuskove_all, mimo_all, equal_var=False, alternative="less"))
 
+# TODO: nakopírovat vypisovanie statistík pre jednotlivých studentov
+
 # TODO: dokresliť pdf exponenciálnej fc so správnym parametrom
 
-plt.hist(mimo_all, 30, (0,12.7), color="violet")
+# plt.hist(mimo_s4, 30, (0,12.7), color="violet", label="mimo skuskoveho")
+# plt.hist(skuskove_s4,30, (0,12.7), color = "red", label="pocas skuskoveho")
+plt.hist(mimo_all+skuskove_all, 30, (0,12.7))
 
 plt.xlabel("Time spent on Netflix")
 plt.ylabel("Frequency")
 plt.title("Histogram časov mimo skúškového")
+plt.legend()
 
 plt.show()
 
