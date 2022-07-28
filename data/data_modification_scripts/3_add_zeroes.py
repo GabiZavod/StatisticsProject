@@ -54,8 +54,8 @@ def add_dates(dates, times):
             times.insert(i+1, "0\n")
         i+=1
 
-inp = open("../Student4_2", "r")
-o = open("../final_data/Student4", "a")
+inp = open("../Student1_2", "r")
+o = open("../../data_final/Student1", "a")
 
 inp.readline()
 lt_line = inp.readline()

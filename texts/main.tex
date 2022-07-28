@@ -1,0 +1,235 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+
+% preco nefungujes dpc
+% \usepackage[T1]{fontenc}
+\usepackage{charter}	% font set: Charter Serif
+\usepackage{tgadventor} % font set: tgadventor Sans Serif
+\renewcommand*\familydefault{\sfdefault}
+
+\parindent=0pt
+\pagenumbering{roman}
+
+\usepackage{graphicx}
+\graphicspath{ {./images/} } 
+
+\usepackage{xcolor}
+\definecolor{background}{rgb}{0.95,0.95,0.95}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+
+\usepackage{listings}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{background},
+    keywordstyle=\color{blue},
+    basicstyle=\footnotesize,
+    numberstyle=\tiny\color{codegray},
+    numbersep=5pt,
+    numbers=left,
+    showspaces=false,
+    basicstyle=\ttfamily\small,
+    breaklines=true
+}
+\lstset{style=mystyle}
+
+\usepackage[a4paper]{geometry}
+\geometry{
+left=2cm,
+top=2.5cm,
+bottom=2.5cm, 
+right=2cm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Štatistická práca - Skúmanie času stráveného na Netflixe}
+\rhead{Gabriela Závodská}
+\cfoot{\thepage}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+    }
+
+\begin{document}
+
+\begin{center}
+\begin{LARGE}
+    \textbf{Štatistická práca}
+
+    Skúmanie času stráveného na Netflixe
+    
+\end{LARGE}
+
+\begin{large}
+
+    \emph{Pravděpodobnost a statistika 1, LS 2021/2022}
+\end{large}
+\end{center}
+
+\section*{Získanie dát a ich spracovanie}
+
+Kompletné dáta som získala z môjho Netflix účtu, ktorý v sebe zahŕňa 4 profily, k nahliadnutiu sú v súbore \href{https://github.com/GabiZavod/StatisticsProject/blob/05f6d4e53e625da1b6ee0fa13046abbf4deb6e70/data/ViewingActivity.csv}{\verb|data/ViewingActivity.csv}. Tento súbor obsahuje veľa pre túto prácu nepodstatných údajov, preto som ich prečistila pomocou skriptíčok v pythone, ktoré sú v zložke \href{https://github.com/GabiZavod/StatisticsProject/blob/05f6d4e53e625da1b6ee0fa13046abbf4deb6e70/data/data_modification_scripts}{\verb|data/data\_modification\_scripts}. Výsledné .csv súbory rozdelené podľa jednotlivých profilov (nazývaných len ako \verb|Student1|,..., \verb|Student4|) doplnené o dátumy, v ktoré nebol Netflix sledovaný (manuálne zarovnané na rovnaký začiatočný a konečný dátum) sú v zložke \href{https://github.com/GabiZavod/StatisticsProject/blob/05f6d4e53e625da1b6ee0fa13046abbf4deb6e70/data_final}{\verb|data\_final}. Prvý stĺpec obsahuje dátum, druhý stĺpec obsahuje počet hodín stráveých sledovaním Netflixu v ten deň. Pre ilustráciu:
+
+\begin{lstlisting}
+2022-06-01,1.1919
+2022-05-31,0
+2022-05-30,0
+2022-05-29,2.4011
+2022-05-28,0.9231
+2022-05-27,2.1519
+2022-05-26,1.4458
+\end{lstlisting}
+
+\section*{Strávia študenti rovnaký čas na Netflixe počas a mimo skúškového?}
+Cieľom tejto práce je overiť hypotézu, či študenti trávia rovnako času na Netflixe počas skúškového, ako mimo neho. Dáta budem skúmať dvomi spôsobmi, najprv všetky štyri profily dohromady a následne každý profil zvlášť.
+
+\vspace{2mm}
+Pre účely tejto práce budem za skúškové obdobie pokladať:
+
+\hspace{3mm} • letné skúškové: 05-20 až 06-30
+
+\hspace{3mm} • zimné skúškové: 01-08 až 02-14
+
+Považujem za potrebné tu podotknúť, že študenti, ktorým jednotlivé profily patria, študujú na rôznych vysokých školách, skúškové obdobia sa preto môžu jemne líšiť, tieto rozdiely budem považovať za nepodstatné.
+
+\vspace{2mm}
+Označme:
+
+\hspace{3mm} • $S_1,...,S_n \sim N(\mu_s, \sigma_s^2)$ časy strávené sledovaním Netflixu počas skúškových období
+
+\hspace{3mm} • $M_1,...,M_m \sim N(\mu_m, \sigma_m^2)$ časy strávené sledovaním Netflixu mimo skúškových období
+
+\vspace{2mm}
+Nulová hypotéza $H_0: \mu_s = \mu_m$ (počas a mimo skúškového strávia šudenti priemerne rovnaký čas
+
+\hspace{5.2cm}denne na Netflixe)
+
+Alternatívna hypotéza $H_1: \mu_s < \mu_m$ (počas skúškového strávia študenti priemerne menej času denne
+
+\hspace{6.1cm}na Netflixe ako mimo skúškového)
+
+% Alternatívna hypotéza $H_2: \mu_s > \mu_m$ (počas skúškového strávia študenti priemerne viac času denne
+
+% \hspace{6.1cm}na Netflixe ako mimo skúškového)
+
+Hladina významnosti: $\alpha = 0.05$
+
+\begin{small}
+Poznámka: Správne by alternatívna hypotéza mala byť len nerovnosť, no keďže chcem zistiť aj to, kedy je sledovanosť vyššia, používam dve alternatívne hypotézy a využívam pritom schopnosť knižnice \verb|scipy| analyzovať dáta aj týmto spôsobom.
+\end{small}
+
+\vspace{2mm}
+Na overenie hypotézy budem používať \textbf{dvojvýberový Walshov t-test}, keďže nič nenaznačuje, že rozptyly náhodných veličín by mohli byť rovnaké.
+
+\subsection*{Časť 1: Všetci študenti}
+Po rozdelení časov jednotlivých študentov na časy z obdobia skúškového a mimo neho a následným spojením týchto zoznamov dostávam dva zoznamy: \verb|skuskove_all| a \verb|mimo_all|. (potrebné skriptíčka v \verb|stats/all_stat.py|)
+
+Následne prevediem t-test: 
+\begin{lstlisting}[language=Python]
+>>> stats.ttest_ind(skuskove_all, mimo_all, equal_var=False, alternative="less")
+
+Ttest_indResult(statistic=-3.1844329401039104, pvalue=0.0007389556448342999)
+\end{lstlisting}
+
+Získaná p-value je menšia ako haldina vierohodnosti $\alpha$, preto môžem $H_0$ zamietnuť. Platí teda alternatívna hypotéza $H_1$, teda že študenti strávia na Netflixe menej času počas skúškového, ako mimo neho.
+
+\subsection*{Časť 2: Každý profil zvlášť}
+Pozrime sa teraz na jednotlivých študentov zvlášť:
+
+\textbf{Student1}:
+
+\begin{lstlisting}
+>>> stats.ttest_ind(skuskove, mimo, equal_var=False, alternative="less")
+
+Ttest_indResult(statistic=-3.8022382781536277, pvalue=7.995788759218318e-05)
+\end{lstlisting}
+
+\textbf{Student2}:
+
+\begin{lstlisting}
+>>> stats.ttest_ind(skuskove, mimo, equal_var=False, alternative="less")
+
+Ttest_indResult(statistic=-5.185564583985727, pvalue=1.6338836876844316e-07)
+\end{lstlisting}
+
+\textbf{Student3}:
+
+\begin{lstlisting}
+>>> stats.ttest_ind(skuskove, mimo, equal_var=False, alternative="less")
+
+Ttest_indResult(statistic=-0.5842829109856048, pvalue=0.27967840340112504)
+\end{lstlisting}
+
+\textbf{Student4}:
+
+\begin{lstlisting}
+>>> stats.ttest_ind(skuskove, mimo, equal_var=False, alternative="less")
+
+Ttest_indResult(statistic=1.8422393338979608, pvalue=0.9668485613877612)
+\end{lstlisting}
+
+\vspace{2mm}
+Z týchto výsledkov môžme usúdiť:
+
+\hspace{3mm} • Pri prvých dvoch študentoch je $H_0$ zamietnuteľná, keďže p-value $< \alpha$
+
+\hspace{3mm} • Pri treťom študentovi $H_0$ zamietnuť nemôžeme
+
+%%% TODO: kedy vlastne môžem zamietať a čo čo vyjadruje?? %%%
+
+\hspace{3mm} • Pri štvrtom študentovi $H_0$ nemôžeme zamietnuť, no keďže hodnota štatistiky prekračuje kritickú 
+
+\hspace{6mm} hodnotu t-rozdelenia s $n+m-2$ stupňami voľnosti (čo je pre počet stupňov volnosti rastúci nad 
+
+\hspace{6mm} všetky medze $=1.6448$), budem sa týmto študentom zaoberať ešte trochu.
+
+\vspace{2mm}
+Výška p-hodnoty pri štvrtom študentovi naznačuje, že stredné hodnoty sledovania Netflixu mimo a počas skúškového sú s vysokou pravdepodobnosťou rovnaké. Výsledná hodnota štatistiky ale naznačuje, že $H_0$ zamietnuť môžme.
+
+Skúsim preto sformulovať inú alternatívnu hypotézu $H_2: \mu_s > \mu_m$.
+
+Po overení $H_0$ s $H_2$ ako alternatívou dostávame:
+
+\begin{lstlisting}
+>>> stats.ttest_ind(skuskove, mimo, equal_var=False, alternative="greater")
+
+Ttest_indResult(statistic=1.8422393338979608, pvalue=0.03315143861223883)
+\end{lstlisting}
+
+Z toho plynie, že $H_0$ je zamietnuteľná v prospech $H_2$.
+
+\pagebreak
+%\section*{Je čas strávený na Netflixe dobre modelovaný normálnym rozdelením?}
+%Na úvod sa pozrime na histogramy:
+
+%Merania $S_1,...,S_n$ zachytáva nasledujúci histogram:
+
+%\begin{lstlisting}[language=Python]
+%plt.hist(skuskove_all, 30, (0,12.7), color="violet")
+
+%plt.xlabel("Time spent on Netflix")
+%plt.ylabel("Frequency")
+%plt.title("Histogram casov pocas skuskoveho")
+
+%plt.show()
+%\end{lstlisting}
+
+%\includegraphics[height=9 cm, width =15cm]{images/histogram_pocas.png}
+
+%Merania $M_1,...,M_n$ zachytáva nasledujúci histogram:
+
+%\begin{lstlisting}[language=Python]
+%plt.hist(mimo_all, 30, (0,12.7), color="violet")
+%plt.show()
+%\end{lstlisting}
+
+%\includegraphics[height=9 cm, width =15cm]{images/histogram_mimo.png}
+
+%V oboch prípadoch už naoko vidíme, že rozdelenie neodpovedá normálnemu a skôr pripomína exponenciálne.
+
+\end{document}
